@@ -23,15 +23,12 @@ import {
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import axiosApi from "../axiosApi";
+import Weather from "./Weather";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [weather] = useState({
-    temp: "24°C",
-    status: "Clear Sky",
-    wind: "12 km/h",
-  });
+
   const [reports, setReports] = useState([]); // User's own reports or communal feed
   const [resources, setResources] = useState([]); // Real inventory items
   const [showAll, setShowAll] = useState(false);
@@ -145,28 +142,7 @@ const Dashboard = () => {
             </div>
           </header>
 
-          <div className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-lg">
-            <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-              <div>
-                <p className="text-indigo-100 font-medium">Citizen Portal</p>
-                <h1 className="text-4xl font-bold mt-1">Islamabad, PK</h1>
-              </div>
-              <div className="flex items-center space-x-6 mt-4 md:mt-0">
-                <div className="flex items-center space-x-2">
-                  <Thermometer className="h-8 w-8 text-yellow-300" />
-                  <span className="text-4xl font-bold">{weather.temp}</span>
-                </div>
-                <div className="text-right border-l border-indigo-400 pl-6 hidden md:block">
-                  <p className="flex items-center justify-end gap-2 text-sm">
-                    <Cloud size={16} /> {weather.status}
-                  </p>
-                  <p className="flex items-center justify-end gap-2 text-sm mt-1">
-                    <Wind size={16} /> {weather.wind}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Weather />
 
           {/* 1. ACTUAL RESOURCE INVENTORY */}
           <div className="space-y-4">
@@ -290,28 +266,7 @@ const Dashboard = () => {
         <Toaster position="top-right" />
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Weather Banner */}
-          <div className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-lg">
-            <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-              <div>
-                <p className="text-indigo-100 font-medium">Citizen Portal</p>
-                <h1 className="text-4xl font-bold mt-1">Islamabad, PK</h1>
-              </div>
-              <div className="flex items-center space-x-6 mt-4 md:mt-0">
-                <div className="flex items-center space-x-2">
-                  <Thermometer className="h-8 w-8 text-yellow-300" />
-                  <span className="text-4xl font-bold">{weather.temp}</span>
-                </div>
-                <div className="text-right border-l border-indigo-400 pl-6 hidden md:block">
-                  <p className="flex items-center justify-end gap-2 text-sm">
-                    <Cloud size={16} /> {weather.status}
-                  </p>
-                  <p className="flex items-center justify-end gap-2 text-sm mt-1">
-                    <Wind size={16} /> {weather.wind}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+         <Weather />
 
           {/* Action Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -336,13 +291,13 @@ const Dashboard = () => {
               </p>
             </div>
             <div
-              onClick={() => navigate("/community")}
+              onClick={() => navigate("/chatbot")}
               className="group cursor-pointer bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all"
             >
               <Users className="text-blue-600 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900">Community Hub</h3>
+              <h3 className="text-xl font-bold text-gray-900">Chatbot</h3>
               <p className="text-gray-500 text-sm mt-1">
-                View NGOs and volunteer programs.
+               Use chatbot to gain insight about precautionary measures.
               </p>
             </div>
           </div>
