@@ -9,7 +9,8 @@ import {
   Settings,
   Menu,
   X, 
-  UsersIcon
+  UsersIcon,
+  SunIcon
 } from "lucide-react";
 
 const Navbar = () => {
@@ -22,6 +23,7 @@ const Navbar = () => {
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Reports", path: "/reports", icon: <FileWarning size={18} /> },
     { name: "Chatbot", path: "/chatbot", icon: <UsersIcon size={18} /> },
+    { name: "Weather", path: "/weatherDisplay", icon: <SunIcon size={18} />}
   ];
 
   return (

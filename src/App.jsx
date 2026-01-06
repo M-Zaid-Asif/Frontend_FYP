@@ -15,6 +15,7 @@ import Reports from "./Components/Reports";
 import UpdateInventory from "./Components/UpdateInventory";
 import MainLayout from "./Components/MainLayout";
 import KnowledgeChat from "./Components/Chatbot";
+import WeatherDisplay from "./Components/WeatherDisplay";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           />
           <Route path="/updateInventory" element={<UpdateInventory />} />
           <Route path="/chatbot" element={<KnowledgeChat />} />
+          <Route path="/weatherDisplay" element={<WeatherDisplay />} />
         </Route>
 
         {/* 3. CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}
