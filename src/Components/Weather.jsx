@@ -1,90 +1,65 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Thermometer, Cloud, Wind, MapPin } from "lucide-react";
+import { Cloud, Sun, CloudRain, Wind, Thermometer, MapPin } from "lucide-react";
 
-const Weather = () => {
-  const [weather, setWeather] = useState({
-    temp: "--",
-    status: "Detecting location...",
-    wind: "--",
-    location: "Loading...",
-  });
+const WeatherCard = () => {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchWeather = async (lat, lon) => {
+    const fetchWeather = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/api/v1/users/currentWeather",
-          {
-            params: { lat, lon },
-            withCredentials: true,
-          }
-        );
-
-        if (response.data.success) {
-          const weatherData = response.data.data;
-          setWeather({
-            temp: `${Math.round(weatherData.temp)}°C`,
-            status: weatherData.conditions,
-            wind: `${weatherData.windspeed} km/h`,
-            // This will now show the City Name
-            location: weatherData.location,
+        // We only need coordinates for the current weather
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const response = await axios.get("http://localhost:8000/api/v1/users/currentWeather", {
+            params: { lat: pos.coords.latitude, lon: pos.coords.longitude },
+            withCredentials: true
           });
-        }
-      } catch (error) {
-        console.error("Weather error:", error);
+          if (response.data.success) setWeather(response.data.data.current);
+          setLoading(false);
+        }, () => setLoading(false));
+      } catch (err) {
+        setLoading(false);
       }
     };
-
-    // Use the Geolocation API to get coordinates
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetchWeather(latitude, longitude);
-        },
-        (error) => {
-          console.warn("Location permission denied. Falling back to default.");
-          fetchWeather(); // Fallback to default city logic in backend
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      fetchWeather();
-    }
+    fetchWeather();
   }, []);
 
+  const getWeatherIcon = (condition) => {
+    const cond = condition?.toLowerCase() || "";
+    if (cond.includes("rain")) return <CloudRain className="text-blue-300" size={32} />;
+    if (cond.includes("cloud")) return <Cloud className="text-gray-200" size={32} />;
+    return <Sun className="text-yellow-300" size={32} />;
+  };
+
+  if (loading || !weather) return <div className="h-24 bg-indigo-800/10 animate-pulse rounded-2xl w-full" />;
+
   return (
-    <div className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-lg transition-all duration-300">
-      <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-        <div className="flex items-center gap-3">
-          <MapPin className="text-indigo-200 h-6 w-6" />
-          <div>
-            <p className="text-indigo-100 font-medium text-sm">
-              Current Location
-            </p>
-            <h1 className="text-xl font-bold leading-tight">
-              {weather.location}
-            </h1>
-          </div>
+    <div className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
+      <div className="flex items-center gap-4">
+        <div className="bg-white/20 p-3 rounded-xl">
+          {getWeatherIcon(weather.conditions)}
         </div>
-        <div className="flex items-center space-x-6 mt-4 md:mt-0">
-          <div className="flex items-center space-x-2">
-            <Thermometer className="h-10 w-10 text-yellow-300" />
-            <span className="text-4xl font-bold">{weather.temp}</span>
-          </div>
-          <div className="text-right border-l border-indigo-400 pl-6 hidden md:block">
-            <p className="flex items-center justify-end gap-2 text-sm font-medium">
-              <Cloud size={16} className="text-indigo-200" /> {weather.status}
-            </p>
-            <p className="flex items-center justify-end gap-2 text-sm mt-1 font-medium">
-              <Wind size={16} className="text-indigo-200" /> {weather.wind}
-            </p>
-          </div>
+        <div>
+          <p className="text-xs font-bold text-indigo-100 uppercase flex items-center gap-1">
+            <MapPin size={12}/> {weather.location}
+          </p>
+          <h2 className="text-2xl font-black">{Math.round(weather.temp)}°C</h2>
+        </div>
+      </div>
+
+      <div className="flex gap-6 border-l border-white/20 pl-6">
+        <div className="text-center">
+          <p className="flex items-center gap-1 text-sm font-bold"><Wind size={14}/> {Math.round(weather.windspeed)}</p>
+          <p className="text-[10px] text-indigo-100 uppercase">KM/H</p>
+        </div>
+        <div className="text-center hidden sm:block">
+          <p className="text-sm font-bold capitalize">{weather.conditions}</p>
+          <p className="text-[10px] text-indigo-100 uppercase">Status</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Weather;
+export default WeatherCard;

@@ -126,6 +126,9 @@ const Dashboard = () => {
     );
 
   // --- NGO VIEW ---
+ // ... (imports and fetch logic remain same)
+
+  // --- NGO VIEW ---
   if (user?.role === "NGO") {
     return (
       <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
@@ -227,18 +230,18 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 3. COMMUNAL FEED */}
+          {/* 3. COMMUNAL FEED (Modified with Edit/Delete) */}
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-900">
               Live Communal Feed
             </h2>
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
-              {reports.slice(0, 5).map((report) => (
+              {reports.slice(0, 10).map((report) => (
                 <div
                   key={report.id}
-                  className="p-5 flex justify-between items-center"
+                  className="p-5 flex justify-between items-center hover:bg-gray-50 transition"
                 >
-                  <div>
+                  <div className="flex-1">
                     <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded uppercase">
                       {report.type}
                     </span>
@@ -247,9 +250,36 @@ const Dashboard = () => {
                       {report.locationName}
                     </p>
                   </div>
-                  <button className="text-indigo-600 font-bold text-sm flex items-center gap-1 hover:underline">
-                    Respond <ExternalLink size={14} />
-                  </button>
+
+                  <div className="flex items-center gap-3">
+                    {/* SHOW ACTIONS ONLY IF THE LOGGED-IN NGO OWNS THIS REPORT */}
+                    {report.userId === user.id ? (
+                      <div className="flex gap-2 border-r pr-3 border-gray-100">
+                        <button
+                          onClick={() => navigate(`/updateReport/${report.id}`)}
+                          className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition"
+                          title="Edit your report"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReport(report.id)}
+                          className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                          title="Delete your report"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-gray-300 font-bold uppercase tracking-widest px-2 italic">
+                        External Report
+                      </span>
+                    )}
+
+                    <button className="text-indigo-600 font-bold text-sm flex items-center gap-1 hover:underline whitespace-nowrap">
+                      Respond <ExternalLink size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

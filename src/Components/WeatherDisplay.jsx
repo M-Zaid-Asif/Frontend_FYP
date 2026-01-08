@@ -59,7 +59,7 @@ const WeatherDisplay = () => {
   if (error && !weather) return <div className="text-red-500 p-6">Error: {error}</div>;
 
   return (
-    <div className="bg-gradient-to-br from-indigo-700 via-indigo-600 to-blue-500 rounded-3xl p-8 text-white shadow-2xl relative border border-white/10">
+    <div className="bg-gradient-to-br from-indigo-700 w-[80%] my-10 m-auto via-indigo-600 to-blue-500 rounded-3xl p-8 text-white shadow-2xl relative border border-white/10">
       {/* 1. TOP SECTION: CURRENT WEATHER */}
       <div className="flex flex-col md:flex-row justify-between items-center relative z-10 mb-8">
         <div className="text-left">
