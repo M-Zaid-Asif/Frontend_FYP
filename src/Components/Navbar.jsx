@@ -3,14 +3,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileWarning, 
-  Users, 
   UserCircle, 
   LogOut, 
   Settings,
   Menu,
   X, 
   UsersIcon,
-  SunIcon
+  SunIcon,
+  Map as MapIcon // 1. Added MapIcon import
 } from "lucide-react";
 
 const Navbar = () => {
@@ -18,13 +18,20 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Your defined links preserved exactly
+  // 2. Added Map to your defined links
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} /> },
+    { name: "Crisis Map", path: "/map", icon: <MapIcon size={18} /> }, // New Map Link
     { name: "Reports", path: "/reports", icon: <FileWarning size={18} /> },
     { name: "Chatbot", path: "/chatbot", icon: <UsersIcon size={18} /> },
     { name: "Weather", path: "/weatherDisplay", icon: <SunIcon size={18} />}
   ];
+
+  const handleLogout = () => {
+    // Add your logout logic here (e.g., localStorage.clear())
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
@@ -68,8 +75,6 @@ const Navbar = () => {
           {/* RIGHT: User Management */}
           <div className="hidden md:flex items-center">
             <div className="relative flex items-center gap-2">
-              
-              {/* Clicking this area navigates to User Profile */}
               <button
                 onClick={() => navigate("/userProfile")}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition border border-transparent hover:border-gray-100"
@@ -77,7 +82,6 @@ const Navbar = () => {
                 <UserCircle className="text-indigo-600" size={32} />
               </button>
 
-              {/* Settings Toggle */}
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="p-2 text-gray-400 hover:text-indigo-600 transition"
@@ -85,7 +89,6 @@ const Navbar = () => {
                 <Settings size={20} />
               </button>
 
-              {/* User Dropdown */}
               {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
                   <button 
@@ -93,6 +96,12 @@ const Navbar = () => {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <UserCircle size={16} /> View Profile
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={16} /> Sign out
                   </button>
                 </div>
               )}
@@ -129,21 +138,23 @@ const Navbar = () => {
             </NavLink>
           ))}
           
-          {/* Mobile User Profile Section */}
           <div className="border-t border-gray-100 pt-4 mt-4">
-             <div 
-               className="flex items-center px-3 mb-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50"
-               onClick={() => { navigate("/userProfile"); setIsOpen(false); }}
-             >
-                <UserCircle className="text-indigo-600" size={32} />
-                <div className="ml-3">
-                  <p className="text-sm font-bold text-gray-900">Ali Khan</p>
-                  <p className="text-xs text-gray-500">View Profile</p>
-                </div>
-             </div>
-             <button className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md">
-               <LogOut size={18} /> Sign out
-             </button>
+              <div 
+                className="flex items-center px-3 mb-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50"
+                onClick={() => { navigate("/userProfile"); setIsOpen(false); }}
+              >
+                 <UserCircle className="text-indigo-600" size={32} />
+                 <div className="ml-3">
+                   <p className="text-sm font-medium text-gray-900">User Profile</p>
+                   <p className="text-xs text-gray-500">View Settings</p>
+                 </div>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md"
+              >
+                <LogOut size={18} /> Sign out
+              </button>
           </div>
         </div>
       )}

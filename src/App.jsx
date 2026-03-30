@@ -16,6 +16,7 @@ import UpdateInventory from "./Components/UpdateInventory";
 import MainLayout from "./Components/MainLayout";
 import KnowledgeChat from "./Components/Chatbot";
 import WeatherDisplay from "./Components/WeatherDisplay";
+import MapPage from "./Components/WeatherMap"
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="/updateInventory" element={<UpdateInventory />} />
           <Route path="/chatbot" element={<KnowledgeChat />} />
           <Route path="/weatherDisplay" element={<WeatherDisplay />} />
+          <Route path="/map" element={<MapPage />} />
         </Route>
 
         {/* 3. CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}
