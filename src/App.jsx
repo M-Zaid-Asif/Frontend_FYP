@@ -5,6 +5,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
 import SignUpPage from "./Components/SignUp";
 import SignInPage from "./Components/SignIn";
 import UserProfile from "./Components/UserProfile";
@@ -16,11 +18,15 @@ import UpdateInventory from "./Components/UpdateInventory";
 import MainLayout from "./Components/MainLayout";
 import KnowledgeChat from "./Components/Chatbot";
 import WeatherDisplay from "./Components/WeatherDisplay";
-import MapPage from "./Components/WeatherMap"
+import MapPage from "./Components/WeatherMap";
+import HotlinePage from "./Components/HotlinePage";
+import NotificationHandler from "./Components/NotificationHandler";
 
 function App() {
   return (
     <Router>
+      <Toaster />
+      <NotificationHandler />
       <Routes>
         {/* 1. ROUTES WITHOUT NAVBAR (Public) */}
         <Route path="/" element={<Navigate to="/signin" />} />
@@ -42,6 +48,7 @@ function App() {
           <Route path="/chatbot" element={<KnowledgeChat />} />
           <Route path="/weatherDisplay" element={<WeatherDisplay />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/hotlines" element={<HotlinePage />} />
         </Route>
 
         {/* 3. CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}

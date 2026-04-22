@@ -1,24 +1,156 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Search,
-  MapPin,
-  AlertCircle,
-  User,
-  ThumbsUp,
-  ThumbsDown,
-  MessageSquare,
-  Trash2,
-  Edit3,
-  Send,
-  X,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Filter,
+import { 
+  Search, ThumbsUp, ThumbsDown, MapPin, User, Clock, 
+  MessageSquare, Filter, CheckCircle2, XCircle, X, 
+  Send, Edit3, Trash2, Brain, Loader2 
 } from "lucide-react";
 import axiosApi from "../axiosApi";
 import { formatDistanceToNow } from "date-fns";
 import toast, { Toaster } from "react-hot-toast";
+
+/* --- NEW SUB-COMPONENT FOR AI INTEGRATION --- */
+const ReportItem = ({ 
+  report, 
+  handleVote, 
+  activeReportId, 
+  setActiveReportId, 
+  getTierMeta, 
+  currentUser 
+}) => {
+  const [aiExplanation, setAiExplanation] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  const tier = getTierMeta(report);
+  const score = report.validationResult?.confidenceScore || 0;
+  const isCritical = score >= 80;
+  const isRejected = report.status === "REJECTED";
+
+ const fetchAIInsight = async () => {
+  if (aiExplanation || isAiLoading) return;
+  setIsAiLoading(true);
+  try {
+    // Manually extract ONLY the strings. Do NOT send the whole report object.
+    const cleanData = {
+      type: String(report.type),
+      location: String(report.locationName),
+      status: String(report.status),
+      upvotes: Number(report.upvotesCount)
+    };
+
+    const res = await axiosApi.post("/users/explainDecision", { report: cleanData });
+    
+    if (res.data.success) {
+      setAiExplanation(res.data.data.explanation);
+    }
+  } catch (err) {
+    setAiExplanation("Verified via community trust metrics.");
+  } finally {
+    setIsAiLoading(false);
+  }
+};
+
+  return (
+    <div
+      className={`bg-white rounded-3xl shadow-sm border transition-all duration-300 ${
+        isCritical ? "border-red-200 ring-4 ring-red-50" : "border-gray-100"
+      } ${isRejected ? "opacity-60 grayscale-[0.3]" : ""}`}
+    >
+      <div className="p-6 flex flex-col md:flex-row gap-6">
+        {/* Vote Panel */}
+        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:border-r md:pr-6 border-gray-50">
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={() => handleVote(report.id, 1)}
+              className={`p-2 rounded-xl transition-all ${
+                report.userVote === 1 ? "bg-green-100 text-green-600" : "text-gray-400 hover:bg-green-50"
+              }`}
+            >
+              <ThumbsUp size={22} fill={report.userVote === 1 ? "currentColor" : "none"} />
+            </button>
+            <span className="text-xs font-black text-green-600">{report.upvotesCount}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={() => handleVote(report.id, -1)}
+              className={`p-2 rounded-xl transition-all ${
+                report.userVote === -1 ? "bg-red-100 text-red-600" : "text-gray-400 hover:bg-red-50"
+              }`}
+            >
+              <ThumbsDown size={22} fill={report.userVote === -1 ? "currentColor" : "none"} />
+            </button>
+            <span className="text-xs font-black text-red-500">{report.downvotesCount}</span>
+          </div>
+        </div>
+
+        {/* Content Panel */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
+                isCritical ? "bg-red-600 text-white" : "bg-gray-100 text-gray-600"
+              }`}>
+                {report.type}
+              </span>
+              
+              <div 
+                onMouseEnter={fetchAIInsight}
+                className={`relative group flex items-center gap-1.5 px-2 py-0.5 rounded-full border cursor-help ${tier.bg} ${tier.color} ${tier.border}`}
+              >
+                {isAiLoading ? <Loader2 size={12} className="animate-spin" /> : tier.icon}
+                <span className="text-[10px] font-bold uppercase">{tier.label}</span>
+                
+                {/* TOOLTIP: Combined Factor Breakdown + AI Reasoning */}
+                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 bg-white border border-gray-100 shadow-2xl rounded-2xl hidden group-hover:block z-50">
+                  <p className="text-[9px] font-black text-gray-400 uppercase mb-2 tracking-widest border-b pb-1 flex items-center gap-1">
+                    <Brain size={10} className="text-indigo-500" /> AI & Factor Analysis
+                  </p>
+                  
+                  {/* AI Reasoning Text */}
+                  <p className="text-[11px] text-slate-700 italic mb-3 leading-relaxed">
+                    {isAiLoading ? "Analyzing weights..." : aiExplanation || "Hover to analyze with AI..."}
+                  </p>
+
+                  <div className="space-y-2 pt-2 border-t border-gray-50">
+                    {report.type === "FLOOD" && (
+                      <>
+                        <FactorRow label="Weather Data" match={tier.breakdown.weather} />
+                        <FactorRow label="Social Proof" match={tier.breakdown.social} />
+                      </>
+                    )}
+                    <FactorRow label="Citizen Trust" match={tier.breakdown.community} />
+                  </div>
+                  <div className="absolute -bottom-1 left-4 w-2 h-2 bg-white border-r border-b border-gray-100 rotate-45"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{report.title}</h2>
+          <p className="text-sm text-gray-600 leading-relaxed mb-4">{report.description}</p>
+          <div className="flex flex-wrap items-center gap-4 text-[11px] font-bold text-gray-400 border-t border-gray-50 pt-4">
+            <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
+              <MapPin size={12} /> {report.locationName}
+            </span>
+            <span className="flex items-center gap-1"><User size={12} /> {report.user?.name}</span>
+            <span className="flex items-center gap-1">
+              <Clock size={12} /> {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+            </span>
+            <button
+              onClick={() => setActiveReportId(activeReportId === report.id ? null : report.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ml-auto transition-colors ${
+                activeReportId === report.id ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+              }`}
+            >
+              <MessageSquare size={14} /> {activeReportId === report.id ? "Hide Feed" : "Updates"}
+            </button>
+          </div>
+        </div>
+      </div>
+      {activeReportId === report.id && (
+        <CommentSection reportId={report.id} currentUser={currentUser} />
+      )}
+    </div>
+  );
+};
 
 const Reports = () => {
   const [allReports, setAllReports] = useState([]);
@@ -52,7 +184,7 @@ const Reports = () => {
 
   useEffect(() => {
     const needsPolling = allReports.some(
-      (r) => r.type === "FLOOD" && !r.validationResult,
+      (r) => r.type === "FLOOD" && !r.validationResult
     );
     if (!needsPolling) return;
     const interval = setInterval(() => {
@@ -61,12 +193,8 @@ const Reports = () => {
     return () => clearInterval(interval);
   }, [allReports, fetchAllData]);
 
-  // 5. UPDATED VOTING LOGIC: Absolute Positive Counts
   const handleVote = async (reportId, value) => {
     try {
-      const report = allReports.find((r) => r.id === reportId);
-      if (!report) return;
-
       setAllReports((prev) =>
         prev.map((r) => {
           if (r.id === reportId) {
@@ -75,16 +203,12 @@ const Reports = () => {
             let newUserVote = r.userVote;
 
             if (newUserVote === value) {
-              // UNDO
               newUserVote = 0;
               value === 1 ? newUp-- : newDown--;
             } else {
-              // REMOVE OLD
               if (newUserVote === 1) newUp--;
               if (newUserVote === -1) newDown--;
-              // ADD NEW
               newUserVote = value;
-              // Even if value is -1, we increment the positive tally of downvoters
               value === 1 ? newUp++ : newDown++;
             }
             return {
@@ -95,9 +219,8 @@ const Reports = () => {
             };
           }
           return r;
-        }),
+        })
       );
-
       await axiosApi.post(`/users/v/${reportId}`, { value });
     } catch (err) {
       fetchAllData();
@@ -123,65 +246,44 @@ const Reports = () => {
 
   const getTierMeta = (report) => {
     const result = report.validationResult;
-    const decision = result?.decision;
+    const currentStatus = report.status; 
+    
     const breakdown = {
-      weather: result?.weatherMatch || false,
-      social:
-        report.type === "FLOOD"
-          ? (result?.confidenceScore >= 50 && !result?.weatherMatch) ||
-            result?.confidenceScore >= 100
-          : false,
+      weather: report.type === "FLOOD" ? (result?.weatherMatch || false) : null,
+      social: report.type === "FLOOD" ? (result?.confidenceScore >= 50) : null,
       community: (report.upvotesCount || 0) > (report.downvotesCount || 0),
     };
 
-    if (report.type !== "FLOOD" && !result) {
-      return {
-        label: "Pending",
-        color: "text-gray-500",
-        bg: "bg-gray-100",
-        border: "border-gray-200",
-        icon: <Clock size={14} />,
-        breakdown,
-      };
+    let meta = {
+      label: "Pending",
+      color: "text-amber-700",
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      icon: <Clock size={14} />,
+      breakdown,
+    };
+
+    if (currentStatus === "VERIFIED") {
+      meta.label = "Verified";
+      meta.color = "text-green-700";
+      meta.bg = "bg-green-50";
+      meta.border = "border-green-200";
+      meta.icon = <CheckCircle2 size={14} />;
+    } else if (currentStatus === "REJECTED") {
+      meta.label = "Rejected";
+      meta.color = "text-red-700";
+      meta.bg = "bg-red-50";
+      meta.border = "border-red-200";
+      meta.icon = <X size={14} />;
+    } else if (!result && report.type === "FLOOD") {
+      meta.label = "Validating...";
+      meta.color = "text-blue-600";
+      meta.bg = "bg-blue-50";
+      meta.border = "border-blue-100";
+      meta.icon = <Clock size={14} className="animate-pulse" />;
     }
-    switch (decision) {
-      case "VERIFIED":
-        return {
-          label: "Verified",
-          color: "text-green-700",
-          bg: "bg-green-50",
-          border: "border-green-200",
-          icon: <CheckCircle2 size={14} />,
-          breakdown,
-        };
-      case "REJECTED":
-        return {
-          label: "Rejected",
-          color: "text-red-700",
-          bg: "bg-red-50",
-          border: "border-red-200",
-          icon: <X size={14} />,
-          breakdown,
-        };
-      case "NEEDS_REVIEW":
-        return {
-          label: "Needs Review",
-          color: "text-amber-700",
-          bg: "bg-amber-50",
-          border: "border-amber-200",
-          icon: <AlertCircle size={14} />,
-          breakdown,
-        };
-      default:
-        return {
-          label: "Validating...",
-          color: "text-blue-600",
-          bg: "bg-blue-50",
-          border: "border-blue-100",
-          icon: <Clock size={14} className="animate-pulse" />,
-          breakdown,
-        };
-    }
+
+    return meta;
   };
 
   return (
@@ -191,24 +293,16 @@ const Reports = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-            Communal Feed
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Real-time disaster validation and field updates.
-          </p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Communal Feed</h1>
+          <p className="text-gray-500 text-sm">Real-time disaster validation and field updates.</p>
         </div>
         <div className="flex gap-2">
           <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 text-center">
-            <p className="text-[10px] font-bold text-gray-400 uppercase">
-              Total
-            </p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase">Total</p>
             <p className="font-bold text-gray-800">{allReports.length}</p>
           </div>
           <div className="bg-green-50 px-4 py-2 rounded-xl shadow-sm border border-green-100 text-center">
-            <p className="text-[10px] font-bold text-green-400 uppercase">
-              Verified
-            </p>
+            <p className="text-[10px] font-bold text-green-400 uppercase">Verified</p>
             <p className="font-bold text-green-600">
               {allReports.filter((r) => r.status === "VERIFIED").length}
             </p>
@@ -216,6 +310,7 @@ const Reports = () => {
         </div>
       </div>
 
+      {/* Filters */}
       <div className="space-y-4 mb-8">
         <div className="relative">
           <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
@@ -231,7 +326,11 @@ const Reports = () => {
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${activeFilter === f ? "bg-indigo-600 text-white border-indigo-600 shadow-md" : "bg-white text-gray-500 border-gray-200"}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                activeFilter === f
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+                  : "bg-white text-gray-500 border-gray-200"
+              }`}
             >
               {f}
             </button>
@@ -239,154 +338,24 @@ const Reports = () => {
         </div>
       </div>
 
+      {/* Reports List */}
       <div className="space-y-6">
-        {allReports.length > 0 ? (
-          filteredReports.map((report) => {
-            const tier = getTierMeta(report);
-            const score = report.validationResult?.confidenceScore || 0;
-            const isCritical = score >= 80;
-            const isRejected = report.status === "REJECTED";
-
-            return (
-              <div
-                key={report.id}
-                className={`bg-white rounded-3xl shadow-sm border transition-all duration-300 ${isCritical ? "border-red-200 ring-4 ring-red-50" : "border-gray-100"} ${isRejected ? "opacity-60 grayscale-[0.3]" : ""}`}
-              >
-                <div className="p-6 flex flex-col md:flex-row gap-6">
-                  {/* SEPARATE VOTE PANEL - ABSOLUTE POSITIVE COUNTS */}
-                  <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:border-r md:pr-6 border-gray-50">
-                    <div className="flex flex-col items-center gap-1">
-                      <button
-                        onClick={() => handleVote(report.id, 1)}
-                        className={`p-2 rounded-xl transition-all ${report.userVote === 1 ? "bg-green-100 text-green-600 shadow-sm" : "text-gray-400 hover:bg-green-50"}`}
-                      >
-                        <ThumbsUp
-                          size={22}
-                          fill={report.userVote === 1 ? "currentColor" : "none"}
-                        />
-                      </button>
-                      <span className="text-xs font-black text-green-600">
-                        {Math.max(0, report.upvotesCount || 0)}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1">
-                      <button
-                        onClick={() => handleVote(report.id, -1)}
-                        className={`p-2 rounded-xl transition-all ${report.userVote === -1 ? "bg-red-100 text-red-600 shadow-sm" : "text-gray-400 hover:bg-red-50"}`}
-                      >
-                        <ThumbsDown
-                          size={22}
-                          fill={
-                            report.userVote === -1 ? "currentColor" : "none"
-                          }
-                        />
-                      </button>
-                      <span className="text-xs font-black text-red-500">
-                        {Math.max(0, report.downvotesCount || 0)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${isCritical ? "bg-red-600 text-white" : "bg-gray-100 text-gray-600"}`}
-                        >
-                          {report.type}
-                        </span>
-                        <div
-                          className={`relative group flex items-center gap-1.5 px-2 py-0.5 rounded-full border cursor-help ${tier.bg} ${tier.color} ${tier.border}`}
-                        >
-                          {tier.icon}
-                          <span className="text-[10px] font-bold uppercase">
-                            {tier.label}
-                          </span>
-                          <div className="absolute bottom-full left-0 mb-2 w-44 p-3 bg-white border border-gray-100 shadow-xl rounded-2xl hidden group-hover:block z-50">
-                            <p className="text-[9px] font-black text-gray-400 uppercase mb-2 tracking-widest border-b pb-1">
-                              Factor Breakdown
-                            </p>
-                            <div className="space-y-2">
-                              <FactorRow
-                                label="Weather Data"
-                                match={tier.breakdown.weather}
-                              />
-                              <FactorRow
-                                label="Social Proof"
-                                match={tier.breakdown.social}
-                              />
-                              <FactorRow
-                                label="Citizen Trust"
-                                match={tier.breakdown.community}
-                              />
-                            </div>
-                            <div className="absolute -bottom-1 left-4 w-2 h-2 bg-white border-r border-b border-gray-100 rotate-45"></div>
-                          </div>
-                        </div>
-                      </div>
-                      {report.validationResult && (
-                        <div className="hidden md:block w-24 text-right">
-                          <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">
-                            Auth {score}%
-                          </p>
-                          <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full transition-all duration-700 ${score >= 70 ? "bg-green-500" : score >= 40 ? "bg-amber-500" : "bg-red-500"}`}
-                              style={{ width: `${score}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">
-                      {report.title}
-                    </h2>
-                    <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                      {report.description}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-4 text-[11px] font-bold text-gray-400 border-t border-gray-50 pt-4">
-                      <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">
-                        <MapPin size={12} /> {report.locationName}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User size={12} /> {report.user?.name}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} />{" "}
-                        {formatDistanceToNow(new Date(report.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                      <button
-                        onClick={() =>
-                          setActiveReportId(
-                            activeReportId === report.id ? null : report.id,
-                          )
-                        }
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ml-auto transition-colors ${activeReportId === report.id ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-900 hover:bg-gray-200"}`}
-                      >
-                        <MessageSquare size={14} />{" "}
-                        {activeReportId === report.id ? "Hide Feed" : "Updates"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {activeReportId === report.id && (
-                  <CommentSection
-                    reportId={report.id}
-                    currentUser={currentUser}
-                  />
-                )}
-              </div>
-            );
-          })
+        {filteredReports.length > 0 ? (
+          filteredReports.map((report) => (
+            <ReportItem 
+              key={report.id}
+              report={report}
+              handleVote={handleVote}
+              activeReportId={activeReportId}
+              setActiveReportId={setActiveReportId}
+              getTierMeta={getTierMeta}
+              currentUser={currentUser}
+            />
+          ))
         ) : (
           <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
             <Filter className="mx-auto text-gray-300 mb-4" size={48} />
-            <p className="text-gray-500 font-medium">
-              No reports match the filter.
-            </p>
+            <p className="text-gray-500 font-medium">No reports match the filter.</p>
           </div>
         )}
       </div>
@@ -397,11 +366,7 @@ const Reports = () => {
 const FactorRow = ({ label, match }) => (
   <div className="flex items-center justify-between gap-2">
     <span className="text-[10px] text-gray-600 font-medium">{label}</span>
-    {match ? (
-      <CheckCircle2 size={12} className="text-green-500" />
-    ) : (
-      <XCircle size={12} className="text-red-400" />
-    )}
+    {match ? <CheckCircle2 size={12} className="text-green-500" /> : <XCircle size={12} className="text-red-400" />}
   </div>
 );
 
