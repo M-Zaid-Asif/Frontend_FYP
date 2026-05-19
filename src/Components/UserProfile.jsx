@@ -25,15 +25,14 @@ const UserProfile = () => {
     confirmPassword: "",
   });
 
-  /**
-   * 1. FETCH USER DATA ON LOAD
-   */
+  // Fetch User Data on Load
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axiosApi.get("/users/getUserProfile");
         setUserData(response.data.data);
       } catch (error) {
+
         // ONLY redirect if the error is 401 (Unauthorized)
         // This prevents redirection during temporary network glitches
         if (error.response?.status === 401) {
@@ -47,9 +46,7 @@ const UserProfile = () => {
     fetchUser();
   }, [navigate]);
 
-  /**
-   * 2. LOGOUT LOGIC
-   */
+  // LOGOUT LOGIC
   const handleLogout = async () => {
     toast.promise(axiosApi.post("/users/logout"), {
       loading: "Logging out...",
@@ -61,9 +58,8 @@ const UserProfile = () => {
     });
   };
 
-  /**
-   * 3. UPDATE PROFILE (NAME/NUMBER)
-   */
+
+  // UPDATE PROFILE (NAME/NUMBER)
   const handleUpdate = async (e) => {
     e.preventDefault();
     toast.promise(
@@ -83,9 +79,7 @@ const UserProfile = () => {
     );
   };
 
-  /**
-   * 4. CHANGE PASSWORD
-   */
+  // CHANGE PASSWORD
   const handlePasswordChange = async (e) => {
     e.preventDefault();
 
@@ -109,9 +103,7 @@ const UserProfile = () => {
     );
   };
 
-  /**
-   * 5. DELETE ACCOUNT
-   */
+  // DELETE ACCOUNT
   const handleDeleteAccount = () => {
     toast(
       (t) => (
@@ -160,6 +152,7 @@ const UserProfile = () => {
       <Toaster position="top-right" />
 
       <div className="max-w-3xl mx-auto space-y-6">
+
         {/* Profile Header */}
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center justify-between">
@@ -230,6 +223,7 @@ const UserProfile = () => {
                       value={userData.number || ""}
                       name="number"
                       required
+                      
                       // pattern: Starts with 03, followed by 9 more digits
                       pattern="03[0-9]{9}"
                       maxLength="11"

@@ -19,12 +19,12 @@ const UpdateReportForm = () => {
     longitude: "",
   });
 
-  // 1. Fetch the existing report data
+  // Fetch the existing report data
   useEffect(() => {
     const fetchReportData = async () => {
       try {
-        const response = await axiosApi.get(`/users/getReports`); 
-        // Note: You can also create a getReportById backend route for better performance
+        const response = await axiosApi.get(`/users/getReports`);
+
         const report = response.data.data.find(r => r.id === reportId);
         
         if (report) {
@@ -50,7 +50,7 @@ const UpdateReportForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 2. Submit the PATCH request
+  // Submit the PATCH request
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdating(true);
@@ -105,8 +105,6 @@ const UpdateReportForm = () => {
             >
               <option value="FLOOD">Flood</option>
               <option value="EARTHQUAKE">Earthquake</option>
-              <option value="FIRE">Fire</option>
-              <option value="STORM">Storm</option>
             </select>
           </div>
 

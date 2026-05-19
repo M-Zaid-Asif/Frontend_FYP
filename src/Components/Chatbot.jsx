@@ -8,7 +8,8 @@ import axiosApi from "../axiosApi";
 const Chatbot = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  // NEW: State for the active modal data
+
+  // State for the active modal data
   const [activeInstruction, setActiveInstruction] = useState(null);
 
 const suggestions = [
@@ -33,6 +34,7 @@ const suggestions = [
     setLoading(true);
     try {
       const response = await axiosApi.post("/users/ask", { message: query });
+
       // Open the modal with the new data
       setActiveInstruction(response.data.data);
     } catch (error) {
@@ -89,6 +91,7 @@ const suggestions = [
       {/* --- INSTRUCTION MODAL --- */}
       {activeInstruction && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" 

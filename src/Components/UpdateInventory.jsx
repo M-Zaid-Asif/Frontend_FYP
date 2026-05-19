@@ -30,7 +30,7 @@ const UpdateInventory = () => {
     description: "",
   });
 
-  // 1. Fetch Resources
+  // Fetch Resources
   const fetchResources = async () => {
     try {
       const response = await axiosApi.get("/users/getResources");
@@ -46,7 +46,7 @@ const UpdateInventory = () => {
     fetchResources();
   }, []);
 
-  // 2. Handle Add or Update Submission
+  // Handle Add or Update Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const loadingToast = toast.loading(
@@ -72,7 +72,7 @@ const UpdateInventory = () => {
     }
   };
 
-  // 3. Handle Delete
+  // Handle Delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to remove this item?")) return;
 
@@ -120,6 +120,7 @@ const UpdateInventory = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <Toaster position="top-center" />
       <div className="max-w-5xl mx-auto">
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -247,14 +248,13 @@ const UpdateInventory = () => {
                   // Prepare payload: Convert quantity to Integer to satisfy Prisma
                   const payload = {
                     ...formData,
-                    quantity: parseInt(formData.quantity, 10), // Crucial fix for 500 error
+                    quantity: parseInt(formData.quantity, 10),
                     itemName: formData.itemName.trim(),
                     unit: formData.unit.trim() || "unit",
                     description: formData.description.trim() || null,
                   };
 
                   // Call the handlesubmit logic with the cleaned payload
-                  // (Make sure your handleSubmit function accepts 'payload' as an argument)
                   handleSubmit(e, payload);
                 }}
                 className="p-6 space-y-4"

@@ -23,8 +23,6 @@ const SignInPage = () => {
       {
         loading: 'Verifying credentials...',
         success: (res) => {
-          // You can save user data to local storage or context here if needed
-          // localStorage.setItem("user", JSON.stringify(res.data.data.user));
           
           // Redirect to profile or home after success
           setTimeout(() => navigate("/dashboard"), 2000);
@@ -32,7 +30,8 @@ const SignInPage = () => {
           return <b>{res.data.message || "Logged in successfully!"}</b>;
         },
         error: (err) => {
-          // Pulls the error message from your ApiError class on the backend
+
+          // Pulls the error message from our ApiError class on the backend
           return <b>{err.response?.data?.message || "Invalid email or password."}</b>;
         },
       }
@@ -41,6 +40,7 @@ const SignInPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+
       {/* Toast Container */}
       <Toaster position="top-center" reverseOrder={false} />
 
@@ -62,6 +62,7 @@ const SignInPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            
             {/* Email */}
             <div>
               <label

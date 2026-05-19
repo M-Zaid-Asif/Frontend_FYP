@@ -10,7 +10,7 @@ const ReportSubmitForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    type: "FLOOD", // Matches your DisasterType Enum
+    type: "FLOOD",
     latitude: "",
     longitude: "",
     locationName: "",
@@ -49,7 +49,7 @@ const ReportSubmitForm = () => {
     setLoading(true);
 
     toast.promise(
-      axiosApi.post("/users/createReport", formData), // Replace with your actual route
+      axiosApi.post("/users/createReport", formData),
       {
         loading: "Submitting your report...",
         success: () => {
@@ -75,6 +75,7 @@ const ReportSubmitForm = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
+
           {/* Title */}
           <div>
             <label className="block text-sm font-semibold text-gray-700">Report Title</label>
@@ -90,6 +91,7 @@ const ReportSubmitForm = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
             {/* Disaster Type */}
             <div>
               <label className="block text-sm font-semibold text-gray-700">Disaster Type</label>

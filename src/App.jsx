@@ -28,12 +28,13 @@ function App() {
       <Toaster />
       <NotificationHandler />
       <Routes>
-        {/* 1. ROUTES WITHOUT NAVBAR (Public) */}
+
+        {/* ROUTES WITHOUT NAVBAR and FOOTER (Public) */}
         <Route path="/" element={<Navigate to="/signin" />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/signin" element={<SignInPage />} />
 
-        {/* 2. ROUTES WITH NAVBAR (Private/Internal) */}
+     
         {/* We wrap these in MainLayout so the Navbar appears on all of them */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -51,7 +52,7 @@ function App() {
           <Route path="/hotlines" element={<HotlinePage />} />
         </Route>
 
-        {/* 3. CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}
+        {/* CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}
         <Route path="*" element={<Navigate to="/signin" />} />
       </Routes>
     </Router>

@@ -10,16 +10,16 @@ import {
   Umbrella,
   Calendar,
   AlertTriangle,
-  Search, // Added Search icon
+  Search,
 } from "lucide-react";
 import { format } from "date-fns";
 
 const WeatherDisplay = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [cityInput, setCityInput] = useState(""); // State for the search bar
+  const [cityInput, setCityInput] = useState("");
 
-  // 2. Create a reusable fetch function
+  // Weather Fetch Function
   const fetchWeatherData = async (lat = null, lon = null, city = null) => {
     setLoading(true);
     try {
@@ -40,7 +40,7 @@ const WeatherDisplay = () => {
     }
   };
 
-  // 3. Updated useEffect
+
   useEffect(() => {
     const initWeather = () => {
       if (navigator.geolocation) {
@@ -64,10 +64,11 @@ const WeatherDisplay = () => {
     e.preventDefault();
     if (cityInput.trim()) {
       fetchWeatherData(null, null, cityInput);
-      setCityInput(""); // Clear input after search
+      setCityInput("");
     }
   };
 
+  // Weather Icon
   const getWeatherIcon = (condition, size = 32) => {
     const cond = condition?.toLowerCase() || "";
     if (cond.includes("rain"))
@@ -89,6 +90,7 @@ const WeatherDisplay = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8 px-4">
+
       {/* SEARCH BAR SECTION */}
       <form onSubmit={handleSearch} className="relative group mb-8">
         <div className="relative flex items-center">

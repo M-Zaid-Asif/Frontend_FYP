@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white p-12 mt-auto border-t border-white/5">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
         
-        {/* 1. Branding & Mission */}
+        {/* Branding & Mission */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <ShieldAlert className="text-red-500" size={24} />
@@ -19,7 +19,7 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* 2. Quick Access Links */}
+        {/* Quick Access Links */}
         <div className="flex flex-col gap-4">
           <h5 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Resources</h5>
           <nav className="flex flex-col gap-3">
@@ -38,7 +38,7 @@ const Footer = () => {
           </nav>
         </div>
 
-        {/* 3. Emergency Status & Copyright */}
+        {/* Emergency Status & Copyright */}
         <div className="text-left flex flex-col justify-between">
           <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
             <p className="text-[10px] text-red-500 font-black uppercase tracking-tighter mb-1">Extreme Emergency</p>

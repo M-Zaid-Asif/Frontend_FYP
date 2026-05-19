@@ -9,6 +9,7 @@ const WeatherCard = () => {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
+
         // We only need coordinates for the current weather
         navigator.geolocation.getCurrentPosition(async (pos) => {
           const response = await axios.get("http://localhost:8000/api/v1/users/currentWeather", {
@@ -25,6 +26,7 @@ const WeatherCard = () => {
     fetchWeather();
   }, []);
 
+  // Weather Icon
   const getWeatherIcon = (condition) => {
     const cond = condition?.toLowerCase() || "";
     if (cond.includes("rain")) return <CloudRain className="text-blue-300" size={32} />;

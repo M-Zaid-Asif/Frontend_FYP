@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import axiosApi from "../axiosApi.js"; // Correct path based on your folder structure
+import axiosApi from "../axiosApi.js";
 
 const SignUpPage = () => {
-  const navigate = useNavigate(); // Initialize navigation
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,33 +21,36 @@ const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Client-side Validation: Password Match
+    // Client-side Validation: Password Match
     if (formData.password !== formData.confirmPassword) {
       return toast.error("Passwords do not match!", {
         icon: "⚠️",
       });
     }
 
-    // 2. Prepare the data for the backend (excluding confirmPassword)
+    // Prepare the data for the backend (excluding confirmPassword)
     const { name, email, number, role, password } = formData;
 
-    // 3. Handle Registration with Axios and Toast
+    // Handle Registration with Axios and Toast
     toast.promise(
       axiosApi.post("/users/register", { name, email, number, role, password }),
       {
         loading: "Creating your account...",
         success: (res) => {
+
           // Redirect to signin after a short delay so they can read the toast
           setTimeout(() => navigate("/signin"), 2000);
           return <b>{res.data.message || "Registration successful!"}</b>;
         },
         error: (err) => {
+
           // Pulls error message from your backend ApiError class
           return <b>{err.response?.data?.message || "Registration failed"}</b>;
         },
       }
     );
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -71,6 +74,7 @@ const SignUpPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit}>
+
             {/* Full Name */}
             <div>
               <label
@@ -169,7 +173,7 @@ const SignUpPage = () => {
                 <input
                   id="password"
                   name="password"
-                  type="text"
+                  type="password"
                   minLength="6"
                   required
                   onChange={handleChange}
@@ -191,7 +195,7 @@ const SignUpPage = () => {
                 <input
                   id="confirm-password"
                   name="confirmPassword"
-                  type="text"
+                  type="password"
                   minLength="6"
                   required
                   onChange={handleChange}

@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 const messaging = getMessaging(app);
 
 const NotificationHandler = () => {
+  
   // Use a ref to track if we've already initialized to prevent double-syncing
   const hasInitialized = useRef(false);
 

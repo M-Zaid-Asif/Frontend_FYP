@@ -1,34 +1,38 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  FileWarning, 
-  UserCircle, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  FileWarning,
+  UserCircle,
+  LogOut,
   Settings,
   Menu,
-  X, 
+  X,
   UsersIcon,
   SunIcon,
-  Map as MapIcon // 1. Added MapIcon import
+  Map as MapIcon,
 } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  // const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // 2. Added Map to your defined links
+  // Links
   const navLinks = [
-    { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} /> },
-    { name: "Crisis Map", path: "/map", icon: <MapIcon size={18} /> }, // New Map Link
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    { name: "Crisis Map", path: "/map", icon: <MapIcon size={18} /> },
     { name: "Reports", path: "/reports", icon: <FileWarning size={18} /> },
     { name: "Chatbot", path: "/chatbot", icon: <UsersIcon size={18} /> },
-    { name: "Weather", path: "/weatherDisplay", icon: <SunIcon size={18} />}
+    { name: "Weather", path: "/weatherDisplay", icon: <SunIcon size={18} /> },
   ];
 
+  // Handling Logout
   const handleLogout = () => {
-    // Add your logout logic here (e.g., localStorage.clear())
     localStorage.removeItem("token");
     navigate("/login");
   };
@@ -37,19 +41,22 @@ const Navbar = () => {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          
           {/* LEFT: Logo & Brand */}
           <div className="flex items-center">
-            <div 
-              className="flex-shrink-0 flex items-center gap-2 cursor-pointer" 
-              onClick={() => navigate("/dashboard")}
-            >
-              <div className="bg-indigo-600 p-1.5 rounded-lg">
-                <FileWarning className="text-white" size={20} />
+            <div className="flex items-center">
+              <div
+                className="flex-shrink-0 flex items-center gap-2 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              >
+                {/* Replaced Icon Box with Logo Image */}
+                <div className="flex items-center justify-center">
+                  <img
+                    src="/logo.png"
+                    alt="FAEAS Logo"
+                    className="w-8 h-8 object-contain rounded-lg"
+                  />
+                </div>
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
-                FAES
-              </span>
             </div>
 
             {/* DESKTOP NAV LINKS */}
@@ -60,9 +67,11 @@ const Navbar = () => {
                   to={link.path}
                   className={({ isActive }) => `
                     flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors
-                    ${isActive 
-                      ? "text-indigo-600 bg-indigo-50" 
-                      : "text-gray-600 hover:text-indigo-600 hover:bg-gray-50"}
+                    ${
+                      isActive
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-600 hover:text-indigo-600 hover:bg-gray-50"
+                    }
                   `}
                 >
                   {link.icon}
@@ -82,7 +91,7 @@ const Navbar = () => {
                 <UserCircle className="text-indigo-600" size={32} />
               </button>
 
-              <button 
+              {/* <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="p-2 text-gray-400 hover:text-indigo-600 transition"
               >
@@ -104,7 +113,7 @@ const Navbar = () => {
                     <LogOut size={16} /> Sign out
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -137,24 +146,29 @@ const Navbar = () => {
               {link.name}
             </NavLink>
           ))}
-          
+
           <div className="border-t border-gray-100 pt-4 mt-4">
-              <div 
-                className="flex items-center px-3 mb-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50"
-                onClick={() => { navigate("/userProfile"); setIsOpen(false); }}
-              >
-                 <UserCircle className="text-indigo-600" size={32} />
-                 <div className="ml-3">
-                   <p className="text-sm font-medium text-gray-900">User Profile</p>
-                   <p className="text-xs text-gray-500">View Settings</p>
-                 </div>
+            <div
+              className="flex items-center px-3 mb-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50"
+              onClick={() => {
+                navigate("/userProfile");
+                setIsOpen(false);
+              }}
+            >
+              <UserCircle className="text-indigo-600" size={32} />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-900">
+                  User Profile
+                </p>
+                <p className="text-xs text-gray-500">View Settings</p>
               </div>
-              <button 
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md"
-              >
-                <LogOut size={18} /> Sign out
-              </button>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md"
+            >
+              <LogOut size={18} /> Log out
+            </button>
           </div>
         </div>
       )}
