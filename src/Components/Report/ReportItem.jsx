@@ -13,6 +13,7 @@ import {
 import axiosApi from "../../axiosApi";
 import { formatDistanceToNow } from "date-fns";
 import FactorRow from "./FactorRow";
+import { useNavigate } from "react-router-dom"; // Imported for navigation
 
 const ReportItem = ({
   report,
@@ -25,6 +26,7 @@ const ReportItem = ({
 }) => {
   const [aiExplanation, setAiExplanation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const navigate = useNavigate(); // Hook initialization
 
   const tier = getTierMeta(report);
   const isCritical = report.validationResult?.confidenceScore >= 80;
@@ -50,6 +52,17 @@ const ReportItem = ({
     } finally {
       setIsAiLoading(false);
     }
+  };
+
+  // Handles smooth transition by passing geographical parameters via state
+  const handleViewOnMap = () => {
+    navigate("/map", {
+      state: {
+        lat: report.latitude,
+        lng: report.longitude,
+        focusReportId: report.id,
+      },
+    });
   };
 
   return (
@@ -149,15 +162,26 @@ const ReportItem = ({
         )}
       </div>
 
-      <button
-        onClick={() =>
-          setActiveReportId(activeReportId === report.id ? null : report.id)
-        }
-        className="mt-4 flex items-center gap-2 text-sm text-gray-600 font-medium hover:text-blue-600 transition"
-      >
-        <MessageSquare size={16} />{" "}
-        {activeReportId === report.id ? "Hide Comments" : "Show Comments"}
-      </button>
+      {/* Footer Action Bar with Comments and the new Map View Switcher */}
+      <div className="mt-4 flex items-center justify-between border-t pt-3">
+        <button
+          onClick={() =>
+            setActiveReportId(activeReportId === report.id ? null : report.id)
+          }
+          className="flex items-center gap-2 text-sm text-gray-600 font-medium hover:text-blue-600 transition"
+        >
+          <MessageSquare size={16} />{" "}
+          {activeReportId === report.id ? "Hide Comments" : "Show Comments"}
+        </button>
+
+        <button
+          onClick={handleViewOnMap}
+          className="flex items-center gap-1.5 text-sm text-indigo-600 font-semibold hover:text-indigo-800 hover:cursor-pointer transition"
+        >
+          <MapPin size={16} />
+          View on Map
+        </button>
+      </div>
 
       {activeReportId === report.id && (
         <CommentSection reportId={report.id} currentUser={currentUser} />

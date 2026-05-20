@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
+import LandingPage from "./LandingPage";
 import SignUpPage from "./Components/SignUp";
 import SignInPage from "./Components/SignIn";
 import UserProfile from "./Components/UserProfile";
@@ -21,6 +22,8 @@ import WeatherDisplay from "./Components/WeatherDisplay";
 import MapPage from "./Components/WeatherMap";
 import HotlinePage from "./Components/HotlinePage";
 import NotificationHandler from "./Components/NotificationHandler";
+import ForgotPassword from "./Components/ForgotPassword";
+import ResetPassword from "./Components/ResetPassword";
 
 function App() {
   return (
@@ -28,13 +31,13 @@ function App() {
       <Toaster />
       <NotificationHandler />
       <Routes>
-
         {/* ROUTES WITHOUT NAVBAR and FOOTER (Public) */}
-        <Route path="/" element={<Navigate to="/signin" />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/signin" element={<SignInPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-     
         {/* We wrap these in MainLayout so the Navbar appears on all of them */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

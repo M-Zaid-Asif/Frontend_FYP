@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -7,7 +7,7 @@ import {
   Circle,
   useMap,
 } from "react-leaflet";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, MapPin, AlertTriangle, Crosshair } from "lucide-react";
 import axiosApi from "../axiosApi";
 import L from "leaflet";
@@ -31,16 +31,51 @@ L.Marker.prototype.options.icon = DefaultIcon;
 const RecenterMap = ({ coords }) => {
   const map = useMap();
   useEffect(() => {
-    if (coords) map.setView(coords, 13);
+    if (coords) map.setView(coords, 14); // Adjusted zoom level to 14 for a crisp focus view
   }, [coords, map]);
+  return null;
+};
+
+// Custom sub-component to safely manipulate the Leaflet map bounds instance
+const FitBoundsHandler = ({ trigger, reports }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (trigger > 0 && reports.length > 0) {
+      // 1. Filter out broken coordinate markers
+      const validPoints = reports
+        .map((r) => [parseFloat(r.latitude), parseFloat(r.longitude)])
+        .filter(([lat, lon]) => !isNaN(lat) && !isNaN(lon));
+
+      if (validPoints.length === 0) return;
+
+      // 2. Compute Leaflet LatLngBounds object wrapper around coordinates array
+      const bounds = L.latLngBounds(validPoints);
+
+      // 3. Smoothly adjust the layout viewport to encapsulate everything with padding
+      map.flyToBounds(bounds, {
+        padding: [50, 50],
+        maxZoom: 14,
+        duration: 1.5,
+      });
+    }
+  }, [trigger, reports, map]);
+
   return null;
 };
 
 const MapPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mapCenter, setMapCenter] = useState([33.6844, 73.0479]); // Default: Islamabad
+  const [fitBoundsTrigger, setFitBoundsTrigger] = useState(0); // Clicking tracks mutations via incrementation
+
+  // Extract spatial properties passed down from ReportItem
+  const targetLat = location.state?.lat;
+  const targetLng = location.state?.lng;
+  const focusCoords = targetLat && targetLng ? [parseFloat(targetLat), parseFloat(targetLng)] : null;
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -83,7 +118,7 @@ const MapPage = () => {
   return (
     <div className="h-screen w-full relative">
 
-      {/* UI Overlay */}
+      {/* LEFT UI Overlay */}
       <div className="absolute top-6 left-6 z-[1000] flex flex-col gap-3">
         <div className="flex items-center gap-4">
           <button
@@ -120,9 +155,20 @@ const MapPage = () => {
         </div>
       </div>
 
+      {/* TOP RIGHT CONTEXT CONTROL OVERLAY */}
+      <div className="absolute top-6 right-6 z-[1000]">
+        <button
+          onClick={() => setFitBoundsTrigger((prev) => prev + 1)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white text-slate-800 font-bold text-xs rounded-xl shadow-2xl hover:bg-slate-50 hover:scale-105 active:scale-95 transition border border-slate-200"
+        >
+          <Crosshair size={16} className="text-indigo-600" />
+          Show All Incidents
+        </button>
+      </div>
+
       <MapContainer
-        center={mapCenter}
-        zoom={12}
+        center={focusCoords || mapCenter} // Prioritizes the focused element coordinates right out of the gate
+        zoom={focusCoords ? 14 : 12}      // Initialized closer if navigating via specific card context
         className="h-full w-full"
         zoomControl={false}
       >
@@ -131,7 +177,11 @@ const MapPage = () => {
           attribution="&copy; CARTO"
         />
 
-        <RecenterMap coords={null} />
+        {/* Dynamic tracker updating positions based on passed parameters */}
+        <RecenterMap coords={focusCoords} />
+
+        {/* Internal hook to animate zoom and align bounds context globally */}
+        <FitBoundsHandler trigger={fitBoundsTrigger} reports={reports} />
 
         {reports.map((report) => {
 
