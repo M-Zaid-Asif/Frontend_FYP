@@ -38,8 +38,10 @@ const Reports = () => {
     loadData();
   }, [fetchUser, fetchAllData]);
 
-  const handleVote = async (reportId, value) => {
+ const handleVote = async (reportId, value) => {
     const originalReports = [...allReports];
+    
+    // 1. Optimistic local state update to keep the click feeling snappy
     setAllReports((prev) =>
       prev.map((r) => {
         if (r.id === reportId) {
@@ -56,20 +58,47 @@ const Reports = () => {
             newUserVote = value;
             value === 1 ? newUp++ : newDown++;
           }
+
+          // Local estimation prediction of the new score configuration
+          // This keeps UI metrics consistent during the short API loading phase
+          const hasWeather = r.validationResult?.weatherMatch || false;
+          const hasSocial = r.validationResult?.newsMatch || false;
+          const totalVotes = newUp + newDown;
+          
+          let predictedScore = 0;
+          if (r.type.toUpperCase() === "FLOOD") {
+            if (hasWeather) predictedScore += 50;
+            if (hasSocial) predictedScore += 25;
+            if (totalVotes >= 1) predictedScore += 25;
+          }
+
           return {
             ...r,
             upvotesCount: Math.max(0, newUp),
             downvotesCount: Math.max(0, newDown),
             userVote: newUserVote,
+            // Temporarily patch the local decision object to prevent visual checkmark flicker
+            validationResult: {
+              ...r.validationResult,
+              confidenceScore: predictedScore,
+              decision: predictedScore >= 75 ? "VERIFIED" : predictedScore < 30 ? "REJECTED" : "NEEDS_REVIEW"
+            }
           };
         }
         return r;
       }),
     );
 
+    // 2. Synchronize with the backend rules engine database
     try {
       await axiosApi.post(`/users/v/${reportId}`, { value });
+      
+      // FORCE RE-FETCH: Pulls the absolute ground-truth data values, scores, 
+      // and matching flags computed straight by your Prisma backend validation script
+      await fetchAllData(); 
+      
     } catch (err) {
+      // Revert back safely if network error occurs or user is unauthenticated
       setAllReports(originalReports);
       toast.error("Vote failed. Please login.");
       void err;
@@ -104,44 +133,63 @@ const Reports = () => {
     if (activeFilter === "PENDING")
       return matchesSearch && (!result || result.decision === "PENDING");
 
-     if (activeFilter === "REJECTED")
-      return matchesSearch && (!result || result.decision === "REJECTED");
+    // Rejected Filter Fix
+    if (activeFilter === "REJECTED")
+      return matchesSearch && result?.decision === "REJECTED";
 
     return matchesSearch;
   });
 
+  // --- UPDATED FRONTEND META SYNC ---
   const getTierMeta = (report) => {
     const result = report.validationResult;
-    const isFlood = report.type.toUpperCase().includes("FLOOD");
+    const score = result?.confidenceScore || 0;
 
-    // Dynamic meta based on decision
+    // 1. Read the clean, decoupled flags straight from your database model fields
+    const isWeatherMatched = result?.weatherMatch || false;
+    const isSocialMatched = result?.newsMatch || false; // Maps straight to your database socialMatch write column
+
+    const isFlood = report.type.toUpperCase().includes("FLOOD");
+    const totalVotes =
+      (report.upvotesCount || 0) + (report.downvotesCount || 0);
+
     const configs = {
       VERIFIED: {
         label: "Verified",
         color: "text-green-600",
         bg: "bg-green-50",
       },
-      REJECTED: { label: "Rejected", color: "text-red-600", bg: "bg-red-50" },
+      REJECTED: {
+        label: "Rejected",
+        color: "text-red-600",
+        bg: "bg-red-50",
+      },
       NEEDS_REVIEW: {
         label: "Needs Review",
         color: "text-blue-600",
         bg: "bg-blue-50",
       },
-      DEFAULT: { label: "Pending", color: "text-amber-700", bg: "bg-amber-50" },
+      DEFAULT: {
+        label: "Pending",
+        color: "text-amber-700",
+        bg: "bg-amber-50",
+      },
     };
 
     const config = configs[result?.decision] || configs.DEFAULT;
 
     return {
       ...config,
+      // 2. Map the UI checkmarks (true) and crosses (false) to match database truth
       breakdown: {
-        // For Floods, we use weatherMatch.
-        // For Earthquakes, we only look at high confidence score since we have no API yet.
-        primarySource: isFlood
-          ? result?.weatherMatch || false
-          : result?.confidenceScore >= 70,
-        socialTrust: (result?.confidenceScore || 0) >= 50,
-        community: (report.upvotesCount || 0) > (report.downvotesCount || 0),
+        // Weather Row: True only if the database confirms rainfall was verified
+        primarySource: isFlood ? isWeatherMatched : score >= 70,
+
+        // Community Trust Row: True if a citizen submitted a vote and score is healthy
+        community: totalVotes >= 1,
+
+        // Social Proof Row: True directly if nearby records were found during backend evaluation
+        socialProof: isFlood ? isSocialMatched : false,
       },
     };
   };
@@ -179,8 +227,7 @@ const Reports = () => {
                 : "bg-white border text-gray-600 hover:bg-gray-50"
             }`}
           >
-            {f.replace("_", " ")}{" "}
-            {/* Makes "NEEDS_REVIEW" look like "NEEDS REVIEW" */}
+            {f.replace("_", " ")}
           </button>
         ))}
       </div>
