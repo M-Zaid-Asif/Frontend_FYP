@@ -58,7 +58,6 @@ const UserProfile = () => {
     });
   };
 
-
   // UPDATE PROFILE (NAME/NUMBER)
   const handleUpdate = async (e) => {
     e.preventDefault();

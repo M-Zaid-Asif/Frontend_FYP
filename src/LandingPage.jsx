@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const LandingPage = () => {
-  // Stats telemetry tracking simulation
+  // Stats telemetry (measuring things from a distance) tracking simulation
   const stats = [
     { label: "Active Incidents Tracked", value: "24/7", icon: <Activity className="text-indigo-600" size={20} /> },
     { label: "Community Validations", value: "100%", icon: <Vote className="text-emerald-600" size={20} /> },
@@ -117,7 +117,7 @@ const LandingPage = () => {
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 block"></span>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 block"></span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500">faeas-live-coverage-engine</span>
+                <span className="text-[10px] font-mono text-slate-500">FAEAS-LIVE-AREA-COVERAGE</span>
                 <span className="w-8"></span>
               </div>
               
@@ -238,8 +238,10 @@ const LandingPage = () => {
 
               <div className="bg-white border border-gray-200 p-4 rounded-xl flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
+                  
+                   {/* Affinity: closeness */}
                   <CheckCircle2 size={16} className="text-emerald-500" />
-                  <span className="text-xs font-bold text-gray-800">Weather API Sensor Affinity Match</span>
+                  <span className="text-xs font-bold    text-gray-800">Weather API Sensor Affinity Match</span>
                 </div>
                 <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded font-bold">PASSED</span>
               </div>

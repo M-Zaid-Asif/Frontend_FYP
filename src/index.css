@@ -1,1 +1,3 @@
+/* Any styles written here apply to every single element on every single page, completely bypassing React's component boundaries. */
+
 @import "tailwindcss";

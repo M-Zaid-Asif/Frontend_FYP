@@ -11,9 +11,11 @@ const firebaseConfig = {
   appId: "1:791716402207:web:2c2730de9f1c16053a312a"
 };
 
+// Initialize the App
 export const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
+// Generate and Check for token of the device and map it to see whether, it is correct or wrong device
 export const requestForToken = async () => {
   try {
     const token = await getToken(messaging, { 
@@ -28,6 +30,7 @@ export const requestForToken = async () => {
   }
 };
 
+// Message Listener waiting for alert to be delivered using firebase, to post it to app
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {

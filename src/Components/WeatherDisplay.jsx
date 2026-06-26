@@ -40,7 +40,7 @@ const WeatherDisplay = () => {
     }
   };
 
-
+  // Reading Exact Location Weather
   useEffect(() => {
     const initWeather = () => {
       if (navigator.geolocation) {

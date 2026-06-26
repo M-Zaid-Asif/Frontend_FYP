@@ -2,12 +2,13 @@ import axios from 'axios';
 import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1', // Our backend URL
+  baseURL: 'http://localhost:8000/api/v1',
   withCredentials: true, // Required for cookies/sessions
 });
 
-// Response Interceptor: Listens to every response that comes back from your backend
+// Response Interceptor: Listens to every response that comes back from backend
 api.interceptors.response.use(
+
   (response) => {
     // If the request succeeds, just pass the response through normally
     return response;

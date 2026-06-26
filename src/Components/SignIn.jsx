@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import axiosApi from "../axiosApi.js"; // Ensure path is correct
+import axiosApi from "../axiosApi.js";
 
 const SignInPage = () => {
   const navigate = useNavigate();
@@ -21,13 +21,15 @@ const SignInPage = () => {
     toast.promise(axiosApi.post("/users/login", loginData), {
       loading: "Verifying credentials...",
       success: (res) => {
+
         // Redirect to profile or home after success
         setTimeout(() => navigate("/dashboard"), 2000);
 
         return <b>{res.data.message || "Logged in successfully!"}</b>;
       },
       error: (err) => {
-        // Pulls the error message from our ApiError class on the backend
+
+        // Pulls the error message from ApiError class on the backend
         return (
           <b>{err.response?.data?.message || "Invalid email or password."}</b>
         );
@@ -37,6 +39,7 @@ const SignInPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      
       {/* Toast Container */}
       <Toaster position="top-center" reverseOrder={false} />
 

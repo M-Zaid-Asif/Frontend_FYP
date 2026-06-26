@@ -8,9 +8,10 @@ import {
   X,
   Loader2,
   ChevronLeft,
-  AlertTriangle,
+  History,
+  Truck,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import axiosApi from "../axiosApi";
 
@@ -47,20 +48,25 @@ const UpdateInventory = () => {
   }, []);
 
   // Handle Add or Update Submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, payloadData) => {
     const loadingToast = toast.loading(
       editingId ? "Updating..." : "Adding item..."
     );
 
+    // Use payloadData if provided by form override validation, otherwise fallback to standard form state
+    const currentPayload = payloadData || {
+      ...formData,
+      quantity: parseInt(formData.quantity, 10),
+    };
+
     try {
       if (editingId) {
         // Update Logic
-        await axiosApi.patch(`/users/updateResource/${editingId}`, formData);
+        await axiosApi.patch(`/users/updateResource/${editingId}`, currentPayload);
         toast.success("Resource updated", { id: loadingToast });
       } else {
         // Add Logic
-        await axiosApi.post("/users/addResources", formData);
+        await axiosApi.post("/users/addResources", currentPayload);
         toast.success("Resource added", { id: loadingToast });
       }
       resetForm();
@@ -87,7 +93,7 @@ const UpdateInventory = () => {
 
   const resetForm = () => {
     setFormData({
-      category: "",
+      category: "FOOD",
       itemName: "",
       quantity: "",
       unit: "",
@@ -122,7 +128,7 @@ const UpdateInventory = () => {
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
           <div>
             <button
               onClick={() => navigate(-1)}
@@ -134,12 +140,28 @@ const UpdateInventory = () => {
               Inventory Management
             </h1>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition shadow-lg shadow-indigo-200"
-          >
-            <Plus size={20} /> Add New Item
-          </button>
+          
+          {/* CONTROL TRIPPERS INTERACTION BUTTONS BAR */}
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/dispatch-history"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 border rounded-xl text-xs font-bold text-gray-600 bg-white hover:bg-gray-50 transition shadow-sm"
+            >
+              <History size={15} /> Dispatch History
+            </Link>
+            <Link
+              to="/dispatch-supplies"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition shadow-sm"
+            >
+              <Truck size={15} /> Dispatch Center
+            </Link>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-indigo-700 transition shadow-md"
+            >
+              <Plus size={16} /> Add New Item
+            </button>
+          </div>
         </div>
 
         {/* Inventory Table */}
@@ -185,16 +207,29 @@ const UpdateInventory = () => {
                       </p>
                     </td>
                     <td className="p-4">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end items-center gap-1">
+                        {/* IN-ROW DISPATCH REDIRECT SHORTCUT CLICKER */}
+                        {item.quantity > 0 && (
+                          <Link
+                            to="/dispatch-supplies"
+                            state={{ preSelectedId: item.id }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            title="Dispatch item supply outbound"
+                          >
+                            <Truck size={18} />
+                          </Link>
+                        )}
                         <button
                           onClick={() => startEdit(item)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                          title="Edit warehouse item parameters"
                         >
                           <Edit3 size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Delete from inventory system entirely"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -234,7 +269,6 @@ const UpdateInventory = () => {
                 onSubmit={(e) => {
                   e.preventDefault();
 
-                  // --- FRONTEND VALIDATIONS ---
                   if (!formData.itemName.trim())
                     return toast.error("Item Name is required");
                   if (!formData.quantity || formData.quantity <= 0) {
@@ -245,7 +279,6 @@ const UpdateInventory = () => {
                   if (!formData.category)
                     return toast.error("Please select a category");
 
-                  // Prepare payload: Convert quantity to Integer to satisfy Prisma
                   const payload = {
                     ...formData,
                     quantity: parseInt(formData.quantity, 10),
@@ -254,7 +287,6 @@ const UpdateInventory = () => {
                     description: formData.description.trim() || null,
                   };
 
-                  // Call the handlesubmit logic with the cleaned payload
                   handleSubmit(e, payload);
                 }}
                 className="p-6 space-y-4"

@@ -24,13 +24,17 @@ import HotlinePage from "./Components/HotlinePage";
 import NotificationHandler from "./Components/NotificationHandler";
 import ForgotPassword from "./Components/ForgotPassword";
 import ResetPassword from "./Components/ResetPassword";
+import DispatchHistoryPage from "./Components/DispatchHistoryPage";
+import DispatchFormPage from "./Components/DispatchFormPage";
 
+ {/*  Act as a Facade for all the components */}
 function App() {
   return (
     <Router>
       <Toaster />
       <NotificationHandler />
       <Routes>
+
         {/* ROUTES WITHOUT NAVBAR and FOOTER (Public) */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -53,6 +57,8 @@ function App() {
           <Route path="/weatherDisplay" element={<WeatherDisplay />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/hotlines" element={<HotlinePage />} />
+          <Route path="/dispatch-history" element={<DispatchHistoryPage />} />
+          <Route path="/dispatch-supplies" element={<DispatchFormPage />} />
         </Route>
 
         {/* CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}

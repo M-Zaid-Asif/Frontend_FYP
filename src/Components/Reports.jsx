@@ -195,7 +195,11 @@ const Reports = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 bg-gray-50 min-h-screen">
+    <>
+    <div>
+    </div>
+    <div className="max-w-5xl mx-auto p-4 bg-gray-50 min-h-screen my-2">
+       <h1 className="text-3xl my-3 font-bold">Community Hub Page</h1>
       <Toaster position="top-right" />
       <div className="mb-4 relative">
         <Search className="absolute left-4 top-3 text-gray-400" size={18} />
@@ -247,6 +251,7 @@ const Reports = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 
