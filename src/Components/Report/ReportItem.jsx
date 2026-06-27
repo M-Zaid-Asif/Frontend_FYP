@@ -13,6 +13,8 @@ import {
 import AuditModal from "./AuditModal";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-hot-toast"
+import axiosApi from "../../axiosApi";
 
 const ReportItem = ({
   report,
@@ -60,27 +62,24 @@ const ReportItem = ({
     handleViewOnMap();
   };
 
-  const fetchAIInsight = async () => {
-    if (aiExplanation || isAiLoading) return;
-    setIsAiLoading(true);
-    try {
-      const res = await axiosApi.post("/users/explainDecision", {
-        report: {
-          type: report.type,
-          location: report.locationName,
-          status: report.validationResult?.decision || "PENDING",
-          upvotesCount: report.upvotesCount,
-          downvotesCount: report.downvotesCount,
-          confidence: confidenceScore,
-        },
-      });
-      setAiExplanation(res.data.data.explanation);
-    } catch (err) {
-      setAiExplanation("AI analysis unavailable at the moment.");
-    } finally {
-      setIsAiLoading(false);
+const fetchAIInsight = async () => {
+  setIsAiLoading(true);
+  try {
+    // Wrap the 'report' object inside a matching key object payload
+    const response = await axiosApi.post("/users/explainDecision", { 
+      report: report 
+    });
+    
+    if (response.data?.success) {
+      setAiExplanation(response.data.data.explanation);
     }
-  };
+  } catch (error) {
+    console.error("AI Fetch error:", error);
+    toast.error("AI analysis is unavailable at the moment");
+  } finally {
+    setIsAiLoading(false);
+  }
+};
 
   const handleViewOnMap = () => {
     navigate("/map", {

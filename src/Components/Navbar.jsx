@@ -11,6 +11,7 @@ import {
   UsersIcon,
   SunIcon,
   Map as MapIcon,
+  FileQuestion,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -29,6 +30,7 @@ const Navbar = () => {
     { name: "Reports", path: "/reports", icon: <FileWarning size={18} /> },
     { name: "Chatbot", path: "/chatbot", icon: <UsersIcon size={18} /> },
     { name: "Weather", path: "/weatherDisplay", icon: <SunIcon size={18} /> },
+    { name: "FAQ's", path: "/faq", icon: <FileQuestion size={18} /> },
   ];
 
   // Handling Logout

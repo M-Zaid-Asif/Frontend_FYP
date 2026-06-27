@@ -26,6 +26,7 @@ import ForgotPassword from "./Components/ForgotPassword";
 import ResetPassword from "./Components/ResetPassword";
 import DispatchHistoryPage from "./Components/DispatchHistoryPage";
 import DispatchFormPage from "./Components/DispatchFormPage";
+import FAQ from "./Components/FAQ";
 
  {/*  Act as a Facade for all the components */}
 function App() {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/hotlines" element={<HotlinePage />} />
           <Route path="/dispatch-history" element={<DispatchHistoryPage />} />
           <Route path="/dispatch-supplies" element={<DispatchFormPage />} />
+          <Route path="/faq" element={<FAQ />} />
         </Route>
 
         {/* CATCH-ALL (Optional: Redirect unknown pages to Sign In) */}
