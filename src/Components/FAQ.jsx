@@ -82,7 +82,7 @@ const FAQPage = () => {
 
       </div>
 
-      {/* --- FAQ ACCORDION LIST --- */}
+      {/* FAQ UP/Down List */}
       <div className="max-w-2xl w-full space-y-4">
         {filteredFaqs.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center text-gray-500">

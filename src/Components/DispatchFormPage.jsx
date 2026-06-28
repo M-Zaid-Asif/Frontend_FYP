@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Truck, AlertCircle, CheckCircle2 } from "lucide-react";
-import axiosApi from "../axiosApi"; // Pointing to your default configuration Axios Instance
+import axiosApi from "../axiosApi";
 
 const DispatchFormPage = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const DispatchFormPage = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await axiosApi.get("/users/getResources"); // Adjust to your route path mapping
+        const res = await axiosApi.get("/users/getResources"); // Adjust to our route path mapping
         // Filters items out that are completely out of stock
         setResources(res.data.data?.filter(r => r.quantity > 0) || []);
       } catch (err) {

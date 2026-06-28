@@ -12,7 +12,7 @@ import { ArrowLeft, MapPin, AlertTriangle, Crosshair } from "lucide-react";
 import axiosApi from "../axiosApi";
 import L from "leaflet";
 
-// --- Leaflet Marker Assets & Anchor Logic ---
+// Leaflet Marker Assets & Anchor Logic
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -42,6 +42,7 @@ const FitBoundsHandler = ({ trigger, reports }) => {
 
   useEffect(() => {
     if (trigger > 0 && reports.length > 0) {
+
       // 1. Filter out broken coordinate markers
       const validPoints = reports
         .map((r) => [parseFloat(r.latitude), parseFloat(r.longitude)])

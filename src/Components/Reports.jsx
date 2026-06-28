@@ -140,14 +140,14 @@ const Reports = () => {
     return matchesSearch;
   });
 
-  // --- UPDATED FRONTEND META SYNC ---
+// 
   const getTierMeta = (report) => {
     const result = report.validationResult;
     const score = result?.confidenceScore || 0;
 
-    // 1. Read the clean, decoupled flags straight from your database model fields
+    // 1. Reading the clean, decoupled flags straight from our database model fields
     const isWeatherMatched = result?.weatherMatch || false;
-    const isSocialMatched = result?.newsMatch || false; // Maps straight to your database socialMatch write column
+    const isSocialMatched = result?.newsMatch || false; 
 
     const isFlood = report.type.toUpperCase().includes("FLOOD");
     const totalVotes =
@@ -180,15 +180,9 @@ const Reports = () => {
 
     return {
       ...config,
-      // 2. Map the UI checkmarks (true) and crosses (false) to match database truth
       breakdown: {
-        // Weather Row: True only if the database confirms rainfall was verified
         primarySource: isFlood ? isWeatherMatched : score >= 70,
-
-        // Community Trust Row: True if a citizen submitted a vote and score is healthy
         community: totalVotes >= 1,
-
-        // Social Proof Row: True directly if nearby records were found during backend evaluation
         socialProof: isFlood ? isSocialMatched : false,
       },
     };
@@ -219,7 +213,6 @@ const Reports = () => {
           "CRITICAL",
           "VERIFIED",
           "NEEDS_REVIEW",
-          "PENDING",
           "REJECTED",
         ].map((f) => (
           <button

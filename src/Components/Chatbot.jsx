@@ -95,7 +95,7 @@ const Chatbot = () => {
         </div> */}
       </div>
 
-      {/* --- RELEVANT MATCHES AREA --- */}
+      {/* RELEVANT MATCHES AREA */}
       <div className="max-w-2xl w-full space-y-4">
         {searchResults.length > 0 && (
           <div className="flex justify-between px-1 text-xs font-bold text-gray-400 uppercase tracking-widest">

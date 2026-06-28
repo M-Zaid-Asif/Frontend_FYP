@@ -141,7 +141,7 @@ const UpdateInventory = () => {
             </h1>
           </div>
           
-          {/* CONTROL TRIPPERS INTERACTION BUTTONS BAR */}
+          {/* CONTRO INTERACTION BUTTONS (Dispatch, History or Add) BAR */}
           <div className="flex flex-wrap gap-2">
             <Link
               to="/dispatch-history"

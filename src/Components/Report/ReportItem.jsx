@@ -30,7 +30,7 @@ const ReportItem = ({
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // We still call getTierMeta purely to grab the clean color configs for the status badge
+  // We call getTierMeta purely to grab the clean color configs for the status badge
   const tier = getTierMeta(report);
   const confidenceScore = report.validationResult?.confidenceScore ?? 0;
   const isCritical = confidenceScore >= 80;
@@ -114,7 +114,7 @@ const fetchAIInsight = async () => {
         <h2 className="font-bold text-lg text-gray-800 leading-tight">{report.title}</h2>
         <p className="text-gray-600 text-sm mt-1">{report.description}</p>
 
-        {/* METRICS ROW (Clean & Simple, No duplicate factor checkmarks) */}
+        {/* METRICS ROW */}
         <div className="flex justify-between items-center mt-4">
           <div className="flex gap-2">
             <button

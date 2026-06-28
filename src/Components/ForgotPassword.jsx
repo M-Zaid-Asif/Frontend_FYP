@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
-import axiosApi from "../axiosApi.js"; // Standardized path to match your SignIn file
+import axiosApi from "../axiosApi.js";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Replicating your native toast.promise pattern for UI alignment
+    // Matching UI Toast
     toast.promise(axiosApi.post("/users/forgot-password", { email }), {
       loading: "Verifying account registration...",
       success: (res) => {
